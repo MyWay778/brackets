@@ -1,41 +1,30 @@
 module.exports = function check(str, bracketsConfig) {
-  str = str.split('')
-  let output = false
-  
-  for (let z = 0; z < bracketsConfig.length; z++) {
-    let complete = false
-    let count = 1
-    while (!complete) {
-      let initLength = str.length
-      let open
-      let close
-      
-      for (let i = 0; i < str.length; i++) {
-        if (str[i] === bracketsConfig[z][0] && str[i+count] === bracketsConfig[z][1]) {
-          open = i
-          close = i + count
+  let decomposedConfig = []
+  for (let config of bracketsConfig) {
+    decomposedConfig = decomposedConfig.concat(config)
+  }
+  bracketsConfig = decomposedConfig
+
+  let bracketIndex
+  const stack = []
+  for (let bracket of str) {
+    bracketIndex = bracketsConfig.indexOf(bracket)
+    if (bracketsConfig[bracketIndex] === bracketsConfig[bracketIndex +1]) {
+        if (stack[stack.length - 1] !== bracketIndex) {
+          stack.push(bracketIndex)
+        }else {
+          stack.pop()
         }
-      }
-      if ( (close === undefined || open === undefined)){
-        if (count > initLength) {
-          complete = true
-        } else {
-          count += 2
+    } else {
+      if (bracketIndex%2 === 0) {
+        stack.push(bracketIndex + 1)
+      } else {
+        if (stack.pop() !== bracketIndex) {
+          return false
         }
-        continue
-      }
-      count = 1
-      str.splice(open, 1)
-      str.splice(close - 1, 1)
-      if (str.length === initLength) {
-        complete = true
-      }
-      if (str.length === 0) {
-        complete = true
-        output = true
       }
     }
-  } 
-  return output
+  }
+  return stack.length === 0
 } 
 
